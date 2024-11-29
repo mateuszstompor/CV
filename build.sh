@@ -15,7 +15,7 @@ fail() {
   exit 1
 }
 
-which pdflatex || fail "pdflatex is not installed"
+which pdflatex 2>&1 1>/dev/null || fail "pdflatex is not installed"
 mkdir -p ${DIST_DIR} || fail "Could not create output directories"
 pdflatex -halt-on-error \
          -jobname="${FILE_NAME}" \
