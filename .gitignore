@@ -1,2 +1,11 @@
 # Build artifacts
 distribution
+
+# Tex cache
+*.aux
+*.fls
+*.out
+*.pdf
+*.log
+*.fdb_latexmk
+*.gz
