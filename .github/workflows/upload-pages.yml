@@ -1,0 +1,52 @@
+name: Generate-and-Deploy-PDF
+
+on:
+  push:
+    branches: [ master ]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  generate-pdf:
+    name: Generate PDF with thesis and deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Compile LaTeX document
+        uses: xu-cheng/latex-action@v2
+        with:
+          root_file: mateuszstompor.tex
+
+      - name: Set name
+        id: rename
+        shell: bash
+        run: |
+          BUILD_DATE=$(TZ=Europe/Warsaw date +"%m%d%H%M")
+          AUTHOR_NAME="Mateusz Stompór"
+          TITLE="CV"
+          FILE_NAME="${AUTHOR_NAME} - ${TITLE}"
+          mv mateuszstompor.pdf "${FILE_NAME}.pdf"
+          echo "pdf_name=${FILE_NAME}.pdf" >> $GITHUB_OUTPUT
+
+      - name: Create deploy directory
+        run: |
+          mkdir -p public
+          cp "${{ steps.rename.outputs.pdf_name }}" public/
+          echo "<html><body><h2>Download PDF</h2><a href='${{ steps.rename.outputs.pdf_name }}'>${{ steps.rename.outputs.pdf_name }}</a></body></html>" > public/index.html
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact for Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
